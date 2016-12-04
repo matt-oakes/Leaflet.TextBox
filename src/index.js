@@ -83,20 +83,26 @@ var TextBox = {
 
         /* Put it along the path using textPath */
         var textNode = L.SVG.create('text');
+        var textSpanNode = L.SVG.create('tspan');
 
         textNode.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", '#' + id);
         for (var attr in options.attributes) {
             textNode.setAttribute(attr, options.attributes[attr]);
         }
+
         var northWest = this.getBounds().getNorthWest();
         var point = this._map.latLngToLayerPoint(northWest);
-        console.log(northWest);
-        console.log(point);
         textNode.setAttribute('x', point.x);
         textNode.setAttribute('y', point.y);
-        textNode.appendChild(document.createTextNode(text));
-        this._textNode = textNode;
 
+        var defaultScale = 13;
+        var offsetFromDefault = this._map.getZoom() - 13
+        var twoToPowerOfOffset = Math.pow(2, offsetFromDefault)
+        textSpanNode.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
+
+        textSpanNode.appendChild(document.createTextNode(text));
+        textNode.appendChild(textSpanNode);
+        this._textNode = textNode;
         svg.appendChild(textNode);
 
         /* Initialize mouse events for the additional nodes */
