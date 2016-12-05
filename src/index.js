@@ -13,9 +13,7 @@ var __onAdd = L.Rectangle.prototype.onAdd,
     __updatePath = L.Rectangle.prototype._updatePath,
     __bringToFront = L.Rectangle.prototype.bringToFront;
 
-
 var TextBox = {
-
     onAdd: function (map) {
         __onAdd.call(this, map);
         this._textRedraw();
@@ -42,7 +40,8 @@ var TextBox = {
         var text = this._text,
             options = this._textOptions;
         if (text) {
-            this.setText(null).setText(text, options);
+            this.setText(null);
+            this.setText(text, options);
         }
     },
 
@@ -50,77 +49,64 @@ var TextBox = {
         this._text = text;
         this._textOptions = options;
 
-        /* If not in SVG mode or Rectangle not added to map yet return */
-        /* setText will be called by onAdd, using value stored in this._text */
+        // If not in SVG mode or Rectangle not added to map yet return
+        // setText will be called by onAdd, using value stored in this._text
         if (!L.Browser.svg || typeof this._map === 'undefined') {
-          return this;
+          return;
         }
 
+        // Figure out the options, taking into account the defaults
         var defaults = {
-            repeat: false,
-            fillColor: 'black',
-            attributes: {},
-            below: false,
         };
         options = L.Util.extend(defaults, options);
 
+        // Get the SVG container element
         var svg = this._map.getRenderer(this)._container;
 
-        /* If empty text, hide */
+        // If empty text, hide and return
         if (!text) {
             if (this._textNode && this._textNode.parentNode) {
                 svg.removeChild(this._textNode);
 
-                /* delete the node, so it will not be removed a 2nd time if the layer is later removed from the map */
+                // Delete the node, so it will not be removed a 2nd time if the layer is later removed from the map
                 delete this._textNode;
             }
-            return this;
+            return;
         }
 
-        text = text.replace(/ /g, '\u00A0');  // Non breakable spaces
-        var id = 'pathdef-' + L.Util.stamp(this);
+        // Add non-breakable spaces to the text
+        text = text.replace(/ /g, '\u00A0');
+
+        // Add the id to the path
+        var id = 'textbox-' + L.Util.stamp(this);
         this._path.setAttribute('id', id);
 
-        /* Put it along the path using textPath */
+        // Create the text node
         var textNode = L.SVG.create('text');
-        var textSpanNode = L.SVG.create('tspan');
-
         textNode.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", '#' + id);
-        for (var attr in options.attributes) {
-            textNode.setAttribute(attr, options.attributes[attr]);
-        }
 
+        // Get the position of the text node
         var northWest = this.getBounds().getNorthWest();
         var point = this._map.latLngToLayerPoint(northWest);
         textNode.setAttribute('x', point.x);
         textNode.setAttribute('y', point.y);
 
+        // Create the the inner span
+        var textSpanNode = L.SVG.create('tspan');
+
+        // Calculate and set the scale of the text
         var defaultScale = 13;
         var offsetFromDefault = this._map.getZoom() - 13
         var twoToPowerOfOffset = Math.pow(2, offsetFromDefault)
         textSpanNode.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
 
+        // Create the text node structure and add to the SVG container
         textSpanNode.appendChild(document.createTextNode(text));
         textNode.appendChild(textSpanNode);
         this._textNode = textNode;
         svg.appendChild(textNode);
 
-        /* Initialize mouse events for the additional nodes */
-        if (this.options.clickable) {
-            if (L.Browser.svg || !L.Browser.vml) {
-                textPath.setAttribute('class', 'leaflet-clickable');
-            }
-
-            L.DomEvent.on(textNode, 'click', this._onMouseClick, this);
-
-            var events = ['dblclick', 'mousedown', 'mouseover',
-                          'mouseout', 'mousemove', 'contextmenu'];
-            for (var i = 0; i < events.length; i++) {
-                L.DomEvent.on(textNode, events[i], this._fireMouseEvent, this);
-            }
-        }
-
-        return this;
+        return;
     }
 };
 
@@ -133,7 +119,7 @@ L.LayerGroup.include({
                 this._layers[layer].setText(text, options);
             }
         }
-        return this;
+        return;
     }
 });
 
