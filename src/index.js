@@ -84,27 +84,55 @@ var TextBox = {
         // Create the text node
         var textNode = L.SVG.create('text');
         textNode.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", '#' + id);
+        this._textNode = textNode;
+        svg.appendChild(textNode);
 
         // Get the position of the text node
         var northWest = this.getBounds().getNorthWest();
-        var point = this._map.latLngToLayerPoint(northWest);
-        textNode.setAttribute('x', point.x);
-        textNode.setAttribute('y', point.y);
+        var southEast = this.getBounds().getSouthEast();
+        var northWestPoint = this._map.latLngToLayerPoint(northWest);
+        var southEastPoint = this._map.latLngToLayerPoint(southEast);
+        var width = southEastPoint.x - northWestPoint.x;
+        textNode.setAttribute('x', northWestPoint.x);
+        textNode.setAttribute('y', northWestPoint.y);
 
-        // Create the the inner span
-        var textSpanNode = L.SVG.create('tspan');
-
-        // Calculate and set the scale of the text
+        // Calculate the scale of the text
         var defaultScale = 13;
         var offsetFromDefault = this._map.getZoom() - 13
         var twoToPowerOfOffset = Math.pow(2, offsetFromDefault)
-        textSpanNode.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
 
-        // Create the text node structure and add to the SVG container
-        textSpanNode.appendChild(document.createTextNode(text));
-        textNode.appendChild(textSpanNode);
-        this._textNode = textNode;
-        svg.appendChild(textNode);
+        // Create the the inner spans
+        var words = text.split(/\s+/).reverse(),
+            word,
+            line = [],
+            lineNumber = 0,
+            lineHeight = 1.1, // em
+            dy = 0,
+            tspan = L.SVG.create('tspan');
+        tspan.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
+        tspan.setAttribute('x', textNode.getAttribute('x'));
+        tspan.setAttribute('y', textNode.getAttribute('y'));
+        tspan.setAttribute('dy', ++lineNumber * lineHeight + dy + "em");
+        textNode.appendChild(tspan);
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.innerHTML = line.join(" ");
+            if (tspan.getComputedTextLength() > width) {
+                // Remove the last word which overflowed
+                line.pop();
+                tspan.innerHTML = line.join(" ");
+                // Add the word to the new line
+                line = [word];
+                // Start a new tspan
+                tspan = L.SVG.create('tspan');
+                tspan.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
+                tspan.setAttribute('x', textNode.getAttribute('x'));
+                tspan.setAttribute('y', textNode.getAttribute('y'));
+                tspan.setAttribute('dy', ++lineNumber * lineHeight + dy + "em");
+                textNode.appendChild(tspan);
+                tspan.innerHTML = line.join(" ");
+            }
+        }
 
         return;
     }
