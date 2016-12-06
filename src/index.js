@@ -107,12 +107,11 @@ var TextBox = {
             line = [],
             lineNumber = 0,
             lineHeight = 1.1, // em
-            dy = 0,
             tspan = L.SVG.create('tspan');
         tspan.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
         tspan.setAttribute('x', textNode.getAttribute('x'));
         tspan.setAttribute('y', textNode.getAttribute('y'));
-        tspan.setAttribute('dy', ++lineNumber * lineHeight + dy + "em");
+        tspan.setAttribute('dy', ++lineNumber * lineHeight + "em");
         textNode.appendChild(tspan);
         while (word = words.pop()) {
             line.push(word);
@@ -128,7 +127,7 @@ var TextBox = {
                 tspan.setAttribute('style', 'font-size: ' + twoToPowerOfOffset + 'em');
                 tspan.setAttribute('x', textNode.getAttribute('x'));
                 tspan.setAttribute('y', textNode.getAttribute('y'));
-                tspan.setAttribute('dy', ++lineNumber * lineHeight + dy + "em");
+                tspan.setAttribute('dy', ++lineNumber * lineHeight + "em");
                 textNode.appendChild(tspan);
                 tspan.innerHTML = line.join(" ");
             }
