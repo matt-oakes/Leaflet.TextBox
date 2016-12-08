@@ -8,7 +8,7 @@ The example is develped against Leaflet 1.0.
 The library works by adding a `setText` method to the `Rectangle` layers.
 
 Basic example:
-```
+```js
 // Standard leaflet map setup
 var map = L.map('map').setView([50.842941, -0.131312], 13);
 L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
