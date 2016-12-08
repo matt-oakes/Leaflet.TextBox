@@ -1,11 +1,8 @@
 {
-  "name": "leaflet-text",
-  "version": "0.0.1",
-  "description": "Adds a text layer to the SVG renderer.",
+  "name": "leaflet-textbox",
+  "version": "0.1.0",
+  "description": "Adds a text box layer to the SVG renderer.",
   "main": "src/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "Matt Oakes <hello@mattoakes.net>",
   "license": "MIT"
 }
